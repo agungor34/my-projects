@@ -50,9 +50,8 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
 
-          cd /home/ec2-user
-          aws s3 cp s3://myfirstbacketfornginx/apngfl_startbatch.sh
-          sh ./apngfl_startbatch.sh
+          cd /home/ec2-user/my-projects/aws/projects/Apache-Nginx-Flask
+          sh ./apngfl_startbatch2.sh
 
 Outputs:
   WebsiteURL:
