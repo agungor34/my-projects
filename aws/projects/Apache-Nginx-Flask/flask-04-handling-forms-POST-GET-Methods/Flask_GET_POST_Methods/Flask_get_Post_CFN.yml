@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This CloudFormation Template was written for 
+  running Flask Get-Post Method on EC2. 
+  Flask Get-Post Method Website will be 
+  deployed on Amazon Linux 2 
+  (ami-0a8b4cd432b1c3063) EC2 Instance with 
+  custom security group which allows http 
+  connections on port 80 and ssh port 22 from 
+  anywhere. Flask Get-Post Method Website 
+  is downloaded from my Public Github repository,
+  then deployed on Apache Web Server.
+  
+Resources:
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP for Apache Web Server and SSH for secure connection.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0a8b4cd432b1c3063 
+      InstanceType: t2.micro
+      KeyName: firstkey
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub Web Server of ${AWS::StackName} Stack
+      UserData: 
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            sudo yum update -y
+            sudo pip3 install flask
+            sudo yum install -y git
+            cd /home/ec2-user
+            sudo git clone https://github.com/agungor34/my-projects.git
+            chown -R ec2-user.ec2-user /home/ec2-user/my-projects
+            FOLDER="/home/ec2-user/my-projects/python/hands-on/flask/flask-04-handling-forms-POST-GET-Methods/Flask_GET_POST_Methods"
+            sed -i 's/app.run(debug=True)/app.run(host="0.0.0.0", port=80)/g' $FOLDER/app.py
+            sudo python3 $FOLDER/app.py &
+
+Outputs:
+  WebsiteURL:
+    Value: !Sub
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt WebServerHost.PublicDnsName
+    Description: Flask Get-Post Method
+
+

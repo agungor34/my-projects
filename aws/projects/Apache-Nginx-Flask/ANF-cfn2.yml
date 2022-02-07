@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This CloudFormation Template was written for 
+  testing Apache, Nginx and Flask running on same EC2. 
+  Three Website will be 
+  deployed on Amazon Linux 2 
+  (ami-0a8b4cd432b1c3063) EC2 Instance with 
+  custom security group which allows http 
+  connections on port 80, 8080, 5000 and ssh port 22 from 
+  anywhere. Three Website are
+  downloaded from my Public Github repository,
+  then deployed on Apache, Nginx and Flask Web Server.
+
+Resources:
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP for Web Servers and SSH for secure connection.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 0.0.0.0/0
+
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0a8b4cd432b1c3063
+      InstanceType: t2.micro
+      KeyName: firstkey
+      AvailabilityZone: us-east-1c
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub Web Server of ${AWS::StackName} Stack
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+
+          cd /home/ec2-user
+          aws s3 cp s3://myfirstbacketfornginx/apngfl_startbatch.sh
+          sh ./apngfl_startbatch.sh
+
+Outputs:
+  WebsiteURL:
+    Value: !Sub
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt WebServerHost.PublicDnsName
+    Description: Three Web Server's URL
