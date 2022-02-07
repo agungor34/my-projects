@@ -1,10 +1,5 @@
 #!/bin/bash
 
-yum update -y
-
-yum install -y git
-cd /home/ec2-user
-git clone https://github.com/agungor34/my-projects.git
 chown -R ec2-user.ec2-user /home/ec2-user/my-projects
 cd /home/ec2-user/my-projects/aws/projects/Apache-Nginx-Flask/flask-04-handling-forms-POST-GET-Methods/Flask_GET_POST_Methods
 sed -i 's/app.run(debug=True)/app.run(host="0.0.0.0")/g' app.py
