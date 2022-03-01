@@ -252,11 +252,16 @@ def yazdir():
 print(yazdir())
 
 def toplama(sayi1,sayi2):
-    return sayi1+sayi2
+    return sayi1 + sayi2
 
 print("Sonuç :",toplama(3,4))
 
 def toplama(sayi1=6,sayi2=8):
-    return sayi1+sayi2x
+    return sayi1 + sayi2
 
 print("Sonuç :",toplama(4,3))
+
+
+a = "abc7059cfda"
+
+print (int(a,16))
